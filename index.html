@@ -42,6 +42,29 @@
     .bar{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 16px}
     .hint{font-size:13px;color:#6b7280;margin:6px 0 0}
     .banner{display:none;padding:10px 16px;background:#111827;color:#fff}
+...your existing CSS up here...
+
+  /* iOS vertical text + safe wrapping fix */
+  html, body {
+    writing-mode: horizontal-tb;
+    -webkit-writing-mode: horizontal-tb;
+  }
+
+  li.task p,
+  .title,
+  .tab,
+  .hint,
+  .pill,
+  button,
+  input,
+  select {
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  .tabs { flex-wrap: wrap; }
+  
   </style>
 </head>
 <body>
