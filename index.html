@@ -8,34 +8,162 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
 <style>
-  /* --- Vertical text hotfix for iOS Safari --- */
-  html, body {
-    writing-mode: horizontal-tb !important;          /* force horizontal text */
-    -webkit-writing-mode: horizontal-tb !important;
+  /* ========= Base palette & sizing ========= */
+  :root{
+    --bg:#f6f7fb; --card:#fff; --ink:#0f172a; --muted:#6b7280; --line:#e5e7eb; --accent:#111827;
+    --rose:#b91c1c; --amber:#b45309; --emerald:#065f46;
+    --safe-top: env(safe-area-inset-top); 
+    --safe-bottom: env(safe-area-inset-bottom);
   }
 
-  /* Make sure we don't split words into single letters */
-  p, h1, h2, h3, h4, h5, h6, .tab, .title, .hint, .pill, button, input, select, small, li, label {
-    white-space: normal !important;
-    word-break: normal !important;
-    overflow-wrap: break-word !important;            /* wrap at word boundaries */
-    hyphens: auto;
+  /* Fix iOS odd vertical text cases (horizontal flow) */
+  html, body{
+    writing-mode: horizontal-tb;
+    -webkit-writing-mode: horizontal-tb;
   }
 
-  /* Task text: normal wrapping only */
-  li.task p {
-    white-space: normal !important;
-    word-break: normal !important;
-    overflow-wrap: break-word !important;
+  *{ box-sizing:border-box }
+
+  /* Keep the original feel; add gentle responsive sizing */
+  html,body{
+    margin:0; height:100%;
+    background:var(--bg); color:var(--ink);
+    font: clamp(15px, 1.9vw, 16px)/1.45 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
   }
 
-  /* (keep portrait/mobile improvements, but avoid over-aggressive wrapping) */
-  .tabs { flex-wrap: wrap; }
-  .tab  { min-height: 40px; }
+  /* ========= App shell ========= */
+  .app{
+    max-width:1000px; margin:0 auto; min-height:100%;
+    display:flex; flex-direction:column;
+    padding-bottom:var(--safe-bottom);
+  }
 
-  /* If you kept clamp() sizing, it’s fine. If text still looks cramped on very
-     narrow screens, bump the base font slightly: */
-  html, body { font-size: 16px; line-height: 1.45; } /* adjust if desired */
+  header{
+    position:sticky; top:0; z-index:10;
+    background:#fff; border-bottom:1px solid var(--line);
+    padding-top:var(--safe-top);
+  }
+
+  .title{
+    padding:12px 16px;
+    font-weight:800; font-size:clamp(18px,2.4vw,22px);
+  }
+
+  /* ========= Tabs (wrap on small screens) ========= */
+  .tabs{
+    display:flex; gap:8px; overflow:auto;
+    padding:8px 8px 12px;
+    background:#fff; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    flex-wrap: wrap; /* allow second row on narrow phones */
+  }
+
+  .tab{
+    flex:0 0 auto;
+    border:1px solid var(--line); border-radius:999px;
+    padding:10px 14px; background:#fff; font-weight:700; line-height:1;
+    min-height:40px; /* nicer tap target on iPhone */
+    white-space:nowrap;
+  }
+
+  .tab.active{
+    background:var(--accent); color:#fff; border-color:var(--accent);
+  }
+
+  /* ========= Main layout & cards ========= */
+  main{
+    padding:12px; display:flex; flex-direction:column; gap:12px;
+  }
+
+  .card{
+    background:var(--card); border:1px solid var(--line);
+    border-radius:16px; box-shadow:0 2px 6px rgba(0,0,0,.03);
+  }
+
+  .card h2{
+    margin:0; padding:10px 12px;
+    border-bottom:1px solid var(--line);
+    font-size:clamp(16px,2.2vw,18px);
+  }
+
+  .card .body{ padding:10px 12px }
+
+  .bar{ display:flex; gap:8px; align-items:center; justify-content:space-between; padding:8px 12px }
+
+  .hint{ font-size:clamp(12px,2vw,13px); color:#6b7280; margin:6px 0 0 }
+
+  /* ========= Forms (mild mobile improvements) ========= */
+  input,select,button{ font:inherit }
+  input,select{
+    border:1px solid var(--line); border-radius:12px; padding:12px; background:#fff; width:100%;
+  }
+  button.primary{
+    background:var(--accent); color:#fff; border:none; border-radius:12px; padding:12px;
+    font-weight:800; width:100%;
+  }
+  .btn{
+    border:1px solid var(--line); background:#fff; border-radius:10px;
+    padding:10px 12px; font-size:clamp(14px,2.2vw,15px);
+  }
+
+  /* Grid: original single-column on phones, 3-col on md+ */
+  .grid{ display:grid; gap:10px }
+  .three{ grid-template-columns:1fr }
+  @media (min-width:640px){
+    .three{ grid-template-columns:1fr 1fr 1fr }
+  }
+
+  /* ========= Task list ========= */
+  ul.tasks{ list-style:none; margin:0; padding:0; display:grid; gap:10px }
+  li.task{
+    display:flex; gap:8px; justify-content:space-between; align-items:flex-start;
+    background:#f8fafc; border:1px solid var(--line); border-radius:12px; padding:12px;
+  }
+
+  /* Safe wrapping (prevents one-letter-per-line but still wraps long text) */
+  li.task p,
+  .title, .tab, .hint, .pill, button, input, select, small, label{
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  li.task p{
+    margin:0;
+    line-height:1.4;
+    font-size:clamp(14px,2.3vw,16px);
+  }
+
+  .meta{
+    display:flex; gap:8px; flex-wrap:wrap;
+    font-size:clamp(11px,2vw,12px); color:var(--muted);
+    margin-top:4px;
+  }
+
+  .pill{ font-weight:800; text-transform:uppercase; letter-spacing:.04em }
+  .rose{ color:var(--rose) } .amber{ color:var(--amber) } .emerald{ color:var(--emerald) }
+
+  .actions{ display:flex; gap:8px; flex-wrap:wrap } /* allow wrap on narrow phones */
+  .strike{ text-decoration:line-through; color:#9ca3af }
+
+  footer{
+    padding:8px 12px 20px; text-align:center; color:#6b7280;
+    font-size:clamp(11px,1.8vw,12px);
+  }
+
+  /* ========= Portrait polish only (light) ========= */
+  @media (orientation:portrait){
+    main{ padding:10px }
+    .tabs{ gap:6px }
+    .tab{ padding:10px 12px }
+    .actions{ justify-content:flex-end }
+  }
+
+  /* Subtle iOS header sheen (keeps original aesthetic) */
+  @supports (-webkit-touch-callout: none){
+    header{ backdrop-filter:saturate(120%) blur(8px) }
+  }
 </style>
 </head>
 <body>
