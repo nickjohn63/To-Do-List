@@ -82,6 +82,44 @@ li.task > div:first-child > div p {
   overflow-wrap: break-word;
   margin: 0;
 }
+/* --- iPhone portrait: put action buttons on a new line --- */
+@media (max-width: 430px) {
+  /* Let the outer task row wrap to two lines */
+  li.task {
+    flex-wrap: wrap;
+    align-items: stretch;
+  }
+
+  /* Left block (checkbox + text + meta) stays first */
+  li.task > div:first-child {
+    order: 1;
+    flex: 1 1 auto;
+    min-width: 0;          /* crucial so paragraph can actually wrap */
+  }
+
+  /* Inner row (checkbox + p) must be able to shrink */
+  li.task > div:first-child > div {
+    flex: 1 1 auto;
+    min-width: 0;          /* crucial for iOS */
+  }
+
+  /* The paragraph itself: normal wrapping */
+  li.task > div:first-child > div p {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  /* Actions move to the next line, full width, right-aligned */
+  li.task .actions {
+    order: 2;
+    flex: 0 0 100%;
+    margin-top: 8px;
+    justify-content: flex-end;
+  }
+}
 
   </style>
 </head>
