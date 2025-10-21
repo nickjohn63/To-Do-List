@@ -41,36 +41,27 @@
     @media (min-width:640px){.three{grid-template-columns:1fr 1fr 1fr}}
     ul.tasks{list-style:none;margin:0;padding:0;display:grid;gap:10px}
     li.task{
-      display:flex;gap:12px;justify-content:space-between;align-items:flex-start;
       background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:12px;
     }
-    /* safe wrapping */
-    li.task p, .title, .tab, .hint, .pill, button, input, select, small, label{
+    /* text wrapping defaults */
+    p, .title, .tab, .hint, .pill, button, input, select, small, label{
       white-space:normal; word-break:normal; overflow-wrap:break-word;
     }
-    li.task p{margin:0;line-height:1.4;font-size:clamp(14px,2.3vw,16px);width:100%}
-    .meta{display:flex;gap:8px;flex-wrap:wrap;font-size:clamp(11px,2vw,12px);color:var(--muted);margin-top:4px}
+    li.task p{margin:0;line-height:1.4;font-size:clamp(14px,2.3vw,16px)}
+    .meta{display:flex;gap:8px;flex-wrap:wrap;font-size:clamp(11px,2vw,12px);color:var(--muted);margin-top:6px}
     .pill{font-weight:800;text-transform:uppercase;letter-spacing:.04em}
     .rose{color:var(--rose)} .amber{color:var(--amber)} .emerald{color:var(--emerald)}
-    .actions{display:flex;gap:8px;flex-wrap:wrap}
     .strike{ text-decoration:line-through;color:#9ca3af }
+    .row{ display:flex; align-items:center; gap:8px; }
+    .actions{ margin-top:8px; display:flex; justify-content:flex-end; }
     footer{padding:8px 12px 20px;text-align:center;color:#6b7280;font-size:clamp(11px,1.8vw,12px)}
-    @media (orientation:portrait){
-      main{padding:10px}
-      .tabs{gap:6px}
-      .tab{padding:10px 12px}
-      .actions{justify-content:flex-end}
-    }
-    /* allow text column to shrink */
-    li.task > div:first-child{ flex:1 1 auto; min-width:0; }
-    li.task > div:first-child > div{ display:flex; align-items:center; gap:8px; flex:1 1 auto; min-width:0; }
-    li.task > div:first-child > div input[type="checkbox"]{ flex:0 0 auto; }
-    li.task > div:first-child > div p{ flex:1 1 auto; min-width:0; }
-    /* phone: put delete under text so it never squeezes */
-    @media (max-width: 480px){
-      li.task{ display:grid; grid-template-columns:1fr; gap:10px; align-items:start; }
-      li.task > div:first-child{ order:1; }
-      li.task .actions{ order:2; justify-content:flex-end; }
+
+    /* === iPhone hard fix: block layout on phones === */
+    @media (max-width: 600px){
+      li.task{ display:block !important; }
+      .row{ display:block !important; }            /* checkbox + text stack */
+      .row p{ display:block !important; width:auto !important; }
+      .actions{ display:flex !important; justify-content:flex-end !important; }
     }
   </style>
 </head>
@@ -130,7 +121,7 @@
       </div>
     </section>
 
-    <footer>Saved locally on this device. Tip: Share -> Add to Home Screen.</footer>
+    <footer>Saved locally on this device. Tip: Share → Add to Home Screen.</footer>
   </main>
 </div>
 
@@ -140,15 +131,8 @@
   }
 
   const STORAGE_KEY = 'five_tab_todo_v1';
-  let memoryFallback = null;
-  function saveState(arr){
-    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
-    catch(e){ memoryFallback = JSON.stringify(arr); }
-  }
-  function loadState(){
-    try{ const raw = localStorage.getItem(STORAGE_KEY); return raw? JSON.parse(raw): []; }
-    catch(e){ return memoryFallback? JSON.parse(memoryFallback): []; }
-  }
+  function saveState(arr){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }catch{} }
+  function loadState(){ try{ const raw = localStorage.getItem(STORAGE_KEY); return raw? JSON.parse(raw): []; }catch{ return []; } }
   function uuid(){ return (crypto.randomUUID? crypto.randomUUID(): Date.now().toString(36)+Math.random().toString(36).slice(2,8)); }
 
   function addDays(date, days){ const d=new Date(date); d.setDate(d.getDate()+days); d.setHours(23,59,59,999); return d; }
@@ -156,20 +140,11 @@
   function fmt(x){ const d=new Date(x); return d.toLocaleDateString(undefined,{weekday:'short',year:'numeric',month:'short',day:'numeric'}); }
   function daysLeft(d){ const e=new Date(d).getTime(); const s=new Date(); s.setHours(0,0,0,0); return Math.ceil((e-s.getTime())/86400000); }
 
-  const CATEGORY_LABELS = { urgent:'Urgent (<=5 days)', semi:'Semi-urgent (<=10 days)', sometime:'Sometime (<=30 days)' };
+  const CATEGORY_LABELS = { urgent:'Urgent (≤5 days)', semi:'Semi-urgent (≤10 days)', sometime:'Sometime (≤30 days)' };
   const DEADLINES = { urgent:5, semi:10, sometime:30 };
 
   let active = 'overdue';
   let state = loadState();
-  if(state.length === 0){
-    const now = new Date();
-    state = [
-      { id:uuid(), text:'(Demo) Call supplier about balcony drawings', category:'urgent', createdAt:now.toISOString(), dueAt:addDays(now,5).toISOString(), order:0, completed:false },
-      { id:uuid(), text:'(Demo) Order fixings for Job TRX-20031', category:'semi', createdAt:now.toISOString(), dueAt:addDays(now,10).toISOString(), order:1, completed:false },
-      { id:uuid(), text:'(Demo) Price powder-coating upgrade', category:'sometime', createdAt:now.toISOString(), dueAt:addDays(now,30).toISOString(), order:2, completed:false }
-    ];
-    saveState(state);
-  }
 
   const listEl = document.getElementById('taskList');
   const titleEl = document.getElementById('listTitle');
@@ -236,37 +211,32 @@
     items.forEach(t => {
       const li = document.createElement('li'); li.className='task';
 
-      // LEFT column (checkbox + text + meta)
-      const left = document.createElement('div'); left.style.flex='1';
-      const head = document.createElement('div'); head.style.display='flex'; head.style.alignItems='center'; head.style.gap='8px';
+      // Row: checkbox + text
+      const row = document.createElement('div'); row.className='row';
       const cb = document.createElement('input'); cb.type='checkbox'; cb.checked=!!t.completed; cb.addEventListener('change', () => toggle(t.id));
       const text = document.createElement('p'); text.textContent = t.text; text.className = t.completed ? 'strike' : '';
-      head.appendChild(cb); head.appendChild(text); left.appendChild(head);
+      row.appendChild(cb); row.appendChild(text); li.appendChild(row);
 
+      // Meta info (keep)
       const meta = document.createElement('div'); meta.className='meta';
       const pill = document.createElement('span'); pill.className='pill ' + (t.category==='urgent'?'rose':t.category==='semi'?'amber':'emerald'); pill.textContent = CATEGORY_LABELS[t.category];
-      const add = document.createElement('span'); add.textContent='Added: '+fmt(t.createdAt);
-      const due = document.createElement('span'); due.textContent='Due: '+fmt(t.dueAt);
-      const leftDays = document.createElement('span'); const dl = daysLeft(t.dueAt); leftDays.textContent = dl<0?('Overdue by '+Math.abs(dl)+'d'):(dl+'d left'); if(dl<0) leftDays.style.color='var(--rose)';
-      meta.appendChild(pill); meta.appendChild(add); meta.appendChild(due); meta.appendChild(leftDays);
-      left.appendChild(meta);
+      const added = document.createElement('span'); added.textContent = 'Added: ' + fmt(t.createdAt);
+      const due = document.createElement('span'); due.textContent = 'Due: ' + fmt(t.dueAt);
+      const left = document.createElement('span'); const dl = daysLeft(t.dueAt); left.textContent = dl<0?('Overdue by '+Math.abs(dl)+'d'):(dl+'d left'); if(dl<0) left.style.color='var(--rose)';
+      meta.appendChild(pill); meta.appendChild(added); meta.appendChild(due); meta.appendChild(left);
+      li.appendChild(meta);
 
-      // ACTIONS (delete only)
+      // Actions (delete only)
       const actions = document.createElement('div'); actions.className='actions';
-      const del = mkBtn('✕', () => removeTask(t.id));
-      actions.appendChild(del);
+      const del = document.createElement('button'); del.className='btn'; del.textContent='✕'; del.addEventListener('click', () => removeTask(t.id));
+      actions.appendChild(del); li.appendChild(actions);
 
-      li.appendChild(left); 
-      li.appendChild(actions);
       listEl.appendChild(li);
     });
   }
 
-  function mkBtn(label, fn){ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=label; b.addEventListener('click', fn); return b; }
   function toggle(id){ state = state.map(t => t.id===id? {...t, completed:!t.completed } : t); saveState(state); renderList(); }
   function removeTask(id){ state = state.filter(t => t.id !== id); saveState(state); renderList(); }
-
-  // Removed: bump(), moveCat()
 
   switchTab('overdue');
 </script>
