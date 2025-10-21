@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>5‑Tab To‑Do</title>
+  <title>5-Tab To-Do</title>
   <meta name="theme-color" content="#0f172a">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -11,49 +11,78 @@
     :root{
       --bg:#f6f7fb; --card:#fff; --ink:#0f172a; --muted:#6b7280; --line:#e5e7eb; --accent:#111827;
       --rose:#b91c1c; --amber:#b45309; --emerald:#065f46;
+      --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom);
     }
+    html, body{ writing-mode: horizontal-tb; -webkit-writing-mode: horizontal-tb; }
     *{box-sizing:border-box}
-    html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1.4 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial;}
-    .app{max-width:1000px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
-    header{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);z-index:10}
-    .title{padding:12px 16px;font-weight:800;font-size:22px}
-    .tabs{display:flex;gap:8px;overflow:auto;padding:8px 8px 12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff}
-    .tab{flex:0 0 auto;border:1px solid var(--line);border-radius:999px;padding:10px 14px;background:#fff;font-weight:700}
+    html,body{
+      margin:0;height:100%;background:var(--bg);color:var(--ink);
+      font: clamp(15px, 1.9vw, 16px)/1.45 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial;
+      text-size-adjust:100%; -webkit-text-size-adjust:100%;
+    }
+    .app{max-width:1000px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding-bottom:var(--safe-bottom)}
+    header{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);z-index:10;padding-top:var(--safe-top)}
+    .title{padding:12px 16px;font-weight:800;font-size:clamp(18px,2.4vw,22px)}
+    .tabs{display:flex;gap:8px;overflow:auto;padding:8px 8px 12px;background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);flex-wrap:wrap}
+    .tab{flex:0 0 auto;border:1px solid var(--line);border-radius:999px;padding:10px 14px;background:#fff;font-weight:700;line-height:1;min-height:40px;white-space:nowrap}
     .tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-    main{padding:16px;display:flex;flex-direction:column;gap:16px}
+    main{padding:12px;display:flex;flex-direction:column;gap:12px}
     .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 2px 6px rgba(0,0,0,.03)}
-    .card h2{margin:0;padding:12px 16px;border-bottom:1px solid var(--line);font-size:18px}
-    .card .body{padding:12px 16px}
-    .grid{display:grid;gap:12px}
-    .three{grid-template-columns:1fr}
-    @media(min-width:640px){.three{grid-template-columns:1fr 1fr 1fr}}
+    .card h2{margin:0;padding:10px 12px;border-bottom:1px solid var(--line);font-size:clamp(16px,2.2vw,18px)}
+    .card .body{padding:10px 12px}
+    .bar{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 12px}
+    .hint{font-size:clamp(12px,2vw,13px);color:#6b7280;margin:6px 0 0}
     input,select,button{font:inherit}
-    input,select{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
-    button.primary{background:var(--accent);color:#fff;border:none;border-radius:12px;padding:12px;font-weight:800}
+    input,select{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;width:100%}
+    button.primary{background:var(--accent);color:#fff;border:none;border-radius:12px;padding:12px;font-weight:800;width:100%}
+    .btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px;font-size:clamp(14px,2.2vw,15px)}
+    .grid{display:grid;gap:10px}
+    .three{grid-template-columns:1fr}
+    @media (min-width:640px){.three{grid-template-columns:1fr 1fr 1fr}}
     ul.tasks{list-style:none;margin:0;padding:0;display:grid;gap:10px}
-    li.task{display:flex;gap:8px;justify-content:space-between;align-items:flex-start;background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:12px}
-    .meta{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:4px}
+    li.task{
+      display:flex;gap:12px;justify-content:space-between;align-items:flex-start;
+      background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:12px;
+    }
+    /* safe wrapping */
+    li.task p, .title, .tab, .hint, .pill, button, input, select, small, label{
+      white-space:normal; word-break:normal; overflow-wrap:break-word;
+    }
+    li.task p{margin:0;line-height:1.4;font-size:clamp(14px,2.3vw,16px);width:100%}
+    .meta{display:flex;gap:8px;flex-wrap:wrap;font-size:clamp(11px,2vw,12px);color:var(--muted);margin-top:4px}
     .pill{font-weight:800;text-transform:uppercase;letter-spacing:.04em}
     .rose{color:var(--rose)} .amber{color:var(--amber)} .emerald{color:var(--emerald)}
-    .actions{display:flex;gap:8px}
-    .btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 10px;font-size:14px}
-    .strike{text-decoration:line-through;color:#9ca3af}
-    footer{padding:8px 16px 24px;text-align:center;color:#6b7280;font-size:12px}
-    .bar{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 16px}
-    .hint{font-size:13px;color:#6b7280;margin:6px 0 0}
-    .banner{display:none;padding:10px 16px;background:#111827;color:#fff}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .strike{ text-decoration:line-through;color:#9ca3af }
+    footer{padding:8px 12px 20px;text-align:center;color:#6b7280;font-size:clamp(11px,1.8vw,12px)}
+    @media (orientation:portrait){
+      main{padding:10px}
+      .tabs{gap:6px}
+      .tab{padding:10px 12px}
+      .actions{justify-content:flex-end}
+    }
+    /* allow text column to shrink */
+    li.task > div:first-child{ flex:1 1 auto; min-width:0; }
+    li.task > div:first-child > div{ display:flex; align-items:center; gap:8px; flex:1 1 auto; min-width:0; }
+    li.task > div:first-child > div input[type="checkbox"]{ flex:0 0 auto; }
+    li.task > div:first-child > div p{ flex:1 1 auto; min-width:0; }
+    /* phone: put delete under text so it never squeezes */
+    @media (max-width: 480px){
+      li.task{ display:grid; grid-template-columns:1fr; gap:10px; align-items:start; }
+      li.task > div:first-child{ order:1; }
+      li.task .actions{ order:2; justify-content:flex-end; }
+    }
   </style>
 </head>
 <body>
 <div class="app">
   <header>
-    <div class="title">5‑Tab To‑Do</div>
-    <div id="persistBanner" class="banner">Storage is limited in this viewer. When deployed on GitHub Pages, tasks will persist normally.</div>
+    <div class="title">5-Tab To-Do</div>
     <nav class="tabs" aria-label="Tabs">
       <button class="tab" id="tab-home" onclick="switchTab('home')">Home</button>
       <button class="tab" id="tab-overdue" onclick="switchTab('overdue')">Overdue</button>
       <button class="tab" id="tab-urgent" onclick="switchTab('urgent')">Urgent</button>
-      <button class="tab" id="tab-semi" onclick="switchTab('semi')">Semi‑urgent</button>
+      <button class="tab" id="tab-semi" onclick="switchTab('semi')">Semi-urgent</button>
       <button class="tab" id="tab-sometime" onclick="switchTab('sometime')">Sometime</button>
     </nav>
   </header>
@@ -65,14 +94,14 @@
         <form class="grid" onsubmit="addTask(event)" autocomplete="off">
           <label class="grid">
             <span class="hint">Task</span>
-            <input id="taskText" placeholder="Add a task… (e.g., Call supplier)">
+            <input id="taskText" placeholder="Add a task... (e.g., Call supplier)">
           </label>
           <div class="grid three">
             <label class="grid">
               <span class="hint">Category</span>
               <select id="taskCat">
                 <option value="urgent">Urgent (5 days)</option>
-                <option value="semi">Semi‑urgent (10 days)</option>
+                <option value="semi">Semi-urgent (10 days)</option>
                 <option value="sometime">Sometime (30 days)</option>
               </select>
             </label>
@@ -85,7 +114,7 @@
             </label>
             <div><button class="primary" type="submit" style="width:100%">Add task</button></div>
           </div>
-          <p class="hint">Rules: Urgent = 5 days, Semi‑urgent = 10 days, Sometime = 30 days. When past due it goes to <strong>Overdue</strong>.</p>
+          <p class="hint">Rules: Urgent = 5 days, Semi-urgent = 10 days, Sometime = 30 days. Past due goes to Overdue.</p>
         </form>
       </div>
     </section>
@@ -101,12 +130,11 @@
       </div>
     </section>
 
-    <footer>Saved locally on this device. Tip: Share → Add to Home Screen.</footer>
+    <footer>Saved locally on this device. Tip: Share -> Add to Home Screen.</footer>
   </main>
 </div>
 
 <script>
-  // Register service worker for offline caching
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
   }
@@ -115,11 +143,11 @@
   let memoryFallback = null;
   function saveState(arr){
     try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
-    catch(e){ memoryFallback = JSON.stringify(arr); document.getElementById('persistBanner').style.display='block'; }
+    catch(e){ memoryFallback = JSON.stringify(arr); }
   }
   function loadState(){
     try{ const raw = localStorage.getItem(STORAGE_KEY); return raw? JSON.parse(raw): []; }
-    catch(e){ document.getElementById('persistBanner').style.display='block'; return memoryFallback? JSON.parse(memoryFallback): []; }
+    catch(e){ return memoryFallback? JSON.parse(memoryFallback): []; }
   }
   function uuid(){ return (crypto.randomUUID? crypto.randomUUID(): Date.now().toString(36)+Math.random().toString(36).slice(2,8)); }
 
@@ -128,7 +156,7 @@
   function fmt(x){ const d=new Date(x); return d.toLocaleDateString(undefined,{weekday:'short',year:'numeric',month:'short',day:'numeric'}); }
   function daysLeft(d){ const e=new Date(d).getTime(); const s=new Date(); s.setHours(0,0,0,0); return Math.ceil((e-s.getTime())/86400000); }
 
-  const CATEGORY_LABELS = { urgent:'Urgent (≤5 days)', semi:'Semi‑urgent (≤10 days)', sometime:'Sometime (≤30 days)' };
+  const CATEGORY_LABELS = { urgent:'Urgent (<=5 days)', semi:'Semi-urgent (<=10 days)', sometime:'Sometime (<=30 days)' };
   const DEADLINES = { urgent:5, semi:10, sometime:30 };
 
   let active = 'overdue';
@@ -184,7 +212,7 @@
       titleEl.textContent = 'Overdue';
       items = state.filter(t => !t.completed && new Date(t.dueAt) < now);
     } else if(active === 'urgent' || active === 'semi' || active === 'sometime'){
-      titleEl.textContent = active==='urgent' ? 'Urgent' : active==='semi' ? 'Semi‑urgent' : 'Sometime';
+      titleEl.textContent = active==='urgent' ? 'Urgent' : active==='semi' ? 'Semi-urgent' : 'Sometime';
       items = state.filter(t => !t.completed && t.category === active && new Date(t.dueAt) >= now);
       items.sort((a,b) => (a.order||0)-(b.order||0) || a.createdAt.localeCompare(b.createdAt));
     } else {
@@ -200,13 +228,15 @@
     };
     countEl.textContent = active==='overdue' ? 'Overdue: '+counts.overdue
                         : active==='urgent' ? 'Urgent: '+counts.urgent
-                        : active==='semi'   ? 'Semi‑urgent: '+counts.semi
+                        : active==='semi'   ? 'Semi-urgent: '+counts.semi
                         : 'Sometime: '+counts.sometime;
 
     listEl.innerHTML='';
     emptyEl.style.display = items.length ? 'none' : 'block';
     items.forEach(t => {
       const li = document.createElement('li'); li.className='task';
+
+      // LEFT column (checkbox + text + meta)
       const left = document.createElement('div'); left.style.flex='1';
       const head = document.createElement('div'); head.style.display='flex'; head.style.alignItems='center'; head.style.gap='8px';
       const cb = document.createElement('input'); cb.type='checkbox'; cb.checked=!!t.completed; cb.addEventListener('change', () => toggle(t.id));
@@ -221,16 +251,13 @@
       meta.appendChild(pill); meta.appendChild(add); meta.appendChild(due); meta.appendChild(leftDays);
       left.appendChild(meta);
 
+      // ACTIONS (delete only)
       const actions = document.createElement('div'); actions.className='actions';
-      const up = mkBtn('↑', () => bump(t.id,'up'));
-      const down = mkBtn('↓', () => bump(t.id,'down'));
-      const move = document.createElement('select'); move.className='btn';
-      ['urgent','semi','sometime'].forEach(k => { const o=document.createElement('option'); o.value=k; o.textContent = (k==='semi'?'Semi‑urgent':k[0].toUpperCase()+k.slice(1)); move.appendChild(o); });
-      move.value = t.category; move.addEventListener('change', () => moveCat(t.id, move.value));
       const del = mkBtn('✕', () => removeTask(t.id));
-      actions.appendChild(up); actions.appendChild(down); actions.appendChild(move); actions.appendChild(del);
+      actions.appendChild(del);
 
-      li.appendChild(left); li.appendChild(actions);
+      li.appendChild(left); 
+      li.appendChild(actions);
       listEl.appendChild(li);
     });
   }
@@ -238,29 +265,8 @@
   function mkBtn(label, fn){ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=label; b.addEventListener('click', fn); return b; }
   function toggle(id){ state = state.map(t => t.id===id? {...t, completed:!t.completed } : t); saveState(state); renderList(); }
   function removeTask(id){ state = state.filter(t => t.id !== id); saveState(state); renderList(); }
-  function bump(id, dir){
-    const now = todayEnd();
-    const me = state.find(t => t.id===id); if(!me) return;
-    const same = state.filter(t => !t.completed && t.category===me.category && new Date(t.dueAt) >= now)
-                     .sort((a,b)=> (a.order||0)-(b.order||0) || a.createdAt.localeCompare(b.createdAt));
-    const pos = same.findIndex(x => x.id===id);
-    const swap = same[pos + (dir==='up'?-1:1)];
-    if(!swap) return;
-    const a = state.findIndex(x => x.id===me.id);
-    const b = state.findIndex(x => x.id===swap.id);
-    const tmp = state[a].order; state[a].order = state[b].order; state[b].order = tmp;
-    saveState(state); renderList();
-  }
-  function moveCat(id, newCat){
-    state = state.map(t => {
-      if(t.id !== id) return t;
-      const due = addDays(new Date(), DEADLINES[newCat]);
-      const same = state.filter(x => x.category === newCat);
-      const max = same.length ? Math.max(...same.map(x => x.order||0)) : 0;
-      return { ...t, category:newCat, dueAt:due.toISOString(), order:max+1 };
-    });
-    saveState(state); switchTab(newCat);
-  }
+
+  // Removed: bump(), moveCat()
 
   switchTab('overdue');
 </script>

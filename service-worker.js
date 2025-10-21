@@ -1,5 +1,5 @@
 // Offline cache for GitHub Pages
-const CACHE_NAME = 'five-tab-todo-cache-v1';
+const CACHE_NAME = 'five-tab-todo-cache-v10'; // bumped
 const ASSETS = [
   './',
   './index.html',
