@@ -8,61 +8,37 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <style>
-    :root{
-      --bg:#f6f7fb; --card:#fff; --ink:#0f172a; --muted:#6b7280; --line:#e5e7eb; --accent:#111827;
-      --rose:#b91c1c; --amber:#b45309; --emerald:#065f46;
-      --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom);
-    }
-    html, body{ writing-mode: horizontal-tb; -webkit-writing-mode: horizontal-tb; }
-    *{box-sizing:border-box}
-    html,body{
-      margin:0;height:100%;background:var(--bg);color:var(--ink);
-      font: clamp(15px, 1.9vw, 16px)/1.45 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial;
-      text-size-adjust:100%; -webkit-text-size-adjust:100%;
-    }
-    .app{max-width:1000px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding-bottom:var(--safe-bottom)}
-    header{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);z-index:10;padding-top:var(--safe-top)}
-    .title{padding:12px 16px;font-weight:800;font-size:clamp(18px,2.4vw,22px)}
-    .tabs{display:flex;gap:8px;overflow:auto;padding:8px 8px 12px;background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);flex-wrap:wrap}
-    .tab{flex:0 0 auto;border:1px solid var(--line);border-radius:999px;padding:10px 14px;background:#fff;font-weight:700;line-height:1;min-height:40px;white-space:nowrap}
-    .tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-    main{padding:12px;display:flex;flex-direction:column;gap:12px}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 2px 6px rgba(0,0,0,.03)}
-    .card h2{margin:0;padding:10px 12px;border-bottom:1px solid var(--line);font-size:clamp(16px,2.2vw,18px)}
-    .card .body{padding:10px 12px}
-    .bar{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 12px}
-    .hint{font-size:clamp(12px,2vw,13px);color:#6b7280;margin:6px 0 0}
-    input,select,button{font:inherit}
-    input,select{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;width:100%}
-    button.primary{background:var(--accent);color:#fff;border:none;border-radius:12px;padding:12px;font-weight:800;width:100%}
-    .btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px;font-size:clamp(14px,2.2vw,15px)}
-    .grid{display:grid;gap:10px}
-    .three{grid-template-columns:1fr}
-    @media (min-width:640px){.three{grid-template-columns:1fr 1fr 1fr}}
-    ul.tasks{list-style:none;margin:0;padding:0;display:grid;gap:10px}
-    li.task{
-      background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:12px;
-    }
-    /* text wrapping defaults */
-    p, .title, .tab, .hint, .pill, button, input, select, small, label{
-      white-space:normal; word-break:normal; overflow-wrap:break-word;
-    }
-    li.task p{margin:0;line-height:1.4;font-size:clamp(14px,2.3vw,16px)}
-    .meta{display:flex;gap:8px;flex-wrap:wrap;font-size:clamp(11px,2vw,12px);color:var(--muted);margin-top:6px}
-    .pill{font-weight:800;text-transform:uppercase;letter-spacing:.04em}
-    .rose{color:var(--rose)} .amber{color:var(--amber)} .emerald{color:var(--emerald)}
-    .strike{ text-decoration:line-through;color:#9ca3af }
-    .row{ display:flex; align-items:center; gap:8px; }
-    .actions{ margin-top:8px; display:flex; justify-content:flex-end; }
-    footer{padding:8px 12px 20px;text-align:center;color:#6b7280;font-size:clamp(11px,1.8vw,12px)}
+    :root{ --bg:#f6f7fb; --card:#fff; --ink:#0f172a; --line:#e5e7eb; --accent:#111827; }
+    html,body{ margin:0; height:100%; background:var(--bg); color:var(--ink);
+      font: 16px/1.45 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial; -webkit-text-size-adjust:100%; }
+    *{ box-sizing:border-box }
 
-    /* === iPhone hard fix: block layout on phones === */
-    @media (max-width: 600px){
-      li.task{ display:block !important; }
-      .row{ display:block !important; }            /* checkbox + text stack */
-      .row p{ display:block !important; width:auto !important; }
-      .actions{ display:flex !important; justify-content:flex-end !important; }
-    }
+    .app{ max-width:900px; margin:0 auto; min-height:100%; display:flex; flex-direction:column; }
+    header{ position:sticky; top:0; z-index:10; background:#fff; border-bottom:1px solid var(--line); }
+    .title{ padding:12px 16px; font-weight:800; font-size:20px; }
+    .tabs{ display:flex; gap:8px; padding:8px; background:#fff; border-top:1px solid var(--line); border-bottom:1px solid var(--line); flex-wrap:wrap; }
+    .tab{ border:1px solid var(--line); background:#fff; border-radius:999px; padding:10px 14px; font-weight:700; }
+    .tab.active{ background:var(--accent); color:#fff; border-color:var(--accent); }
+
+    main{ padding:12px; display:flex; flex-direction:column; gap:12px; }
+    .card{ background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:0 2px 6px rgba(0,0,0,.03); }
+    .card h2{ margin:0; padding:10px 12px; border-bottom:1px solid var(--line); font-size:18px; }
+    .card .body{ padding:12px; }
+
+    input,select,button{ font:inherit }
+    input,select{ width:100%; border:1px solid var(--line); border-radius:12px; padding:12px; background:#fff; }
+    button.primary{ width:100%; padding:12px; border:none; border-radius:12px; font-weight:800; background:var(--accent); color:#fff; }
+
+    .grid{ display:grid; gap:10px }
+    .three{ grid-template-columns:1fr }
+    @media(min-width:640px){ .three{ grid-template-columns:1fr 1fr 1fr } }
+
+    /* TASK LIST: text-only items, no flexboxes anywhere to avoid iOS quirks */
+    ul.tasks{ list-style:none; margin:0; padding:0; display:grid; gap:10px }
+    li.task{ background:#f8fafc; border:1px solid var(--line); border-radius:12px; padding:12px; }
+    li.task p{ margin:0; white-space:normal; word-break:normal; overflow-wrap:break-word; }
+
+    footer{ padding:10px; text-align:center; color:#6b7280; font-size:12px; }
   </style>
 </head>
 <body>
@@ -84,12 +60,12 @@
       <div class="body">
         <form class="grid" onsubmit="addTask(event)" autocomplete="off">
           <label class="grid">
-            <span class="hint">Task</span>
+            <span>Task</span>
             <input id="taskText" placeholder="Add a task... (e.g., Call supplier)">
           </label>
           <div class="grid three">
             <label class="grid">
-              <span class="hint">Category</span>
+              <span>Category</span>
               <select id="taskCat">
                 <option value="urgent">Urgent (5 days)</option>
                 <option value="semi">Semi-urgent (10 days)</option>
@@ -97,146 +73,106 @@
               </select>
             </label>
             <label class="grid">
-              <span class="hint">Insert position</span>
+              <span>Insert position</span>
               <select id="taskPos">
                 <option value="top">Top of list</option>
                 <option value="bottom">End of list</option>
               </select>
             </label>
-            <div><button class="primary" type="submit" style="width:100%">Add task</button></div>
+            <div><button class="primary" type="submit">Add task</button></div>
           </div>
-          <p class="hint">Rules: Urgent = 5 days, Semi-urgent = 10 days, Sometime = 30 days. Past due goes to Overdue.</p>
         </form>
       </div>
     </section>
 
     <section class="card">
-      <div class="bar">
-        <h2 id="listTitle" style="margin:0;font-size:18px">Overdue</h2>
-        <small id="count" class="hint" aria-live="polite"></small>
-      </div>
+      <h2 id="listTitle">Overdue</h2>
       <div class="body">
         <ul class="tasks" id="taskList"></ul>
-        <p id="empty" class="hint" style="display:none">Nothing here yet.</p>
+        <p id="empty" style="display:none;color:#777">Nothing here yet.</p>
       </div>
     </section>
-
-    <footer>Saved locally on this device. Tip: Share → Add to Home Screen.</footer>
   </main>
+
+  <footer>Saved locally on this device. Works offline on repeat visits.</footer>
 </div>
 
 <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
-  }
+  // Basic PWA
+  if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{})); }
 
-  const STORAGE_KEY = 'five_tab_todo_v1';
-  function saveState(arr){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }catch{} }
-  function loadState(){ try{ const raw = localStorage.getItem(STORAGE_KEY); return raw? JSON.parse(raw): []; }catch{ return []; } }
+  // Storage
+  const STORAGE_KEY='five_tab_todo_text_only_v13';
+  function save(arr){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }catch{} }
+  function load(){ try{ const raw=localStorage.getItem(STORAGE_KEY); return raw? JSON.parse(raw): []; }catch{ return []; } }
   function uuid(){ return (crypto.randomUUID? crypto.randomUUID(): Date.now().toString(36)+Math.random().toString(36).slice(2,8)); }
 
-  function addDays(date, days){ const d=new Date(date); d.setDate(d.getDate()+days); d.setHours(23,59,59,999); return d; }
-  function todayEnd(){ const d=new Date(); d.setHours(23,59,59,999); return d; }
-  function fmt(x){ const d=new Date(x); return d.toLocaleDateString(undefined,{weekday:'short',year:'numeric',month:'short',day:'numeric'}); }
-  function daysLeft(d){ const e=new Date(d).getTime(); const s=new Date(); s.setHours(0,0,0,0); return Math.ceil((e-s.getTime())/86400000); }
+  // Dates
+  const DEAD={ urgent:5, semi:10, sometime:30 };
+  function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); x.setHours(23,59,59,999); return x; }
+  function todayEnd(){ const x=new Date(); x.setHours(23,59,59,999); return x; }
 
-  const CATEGORY_LABELS = { urgent:'Urgent (≤5 days)', semi:'Semi-urgent (≤10 days)', sometime:'Sometime (≤30 days)' };
-  const DEADLINES = { urgent:5, semi:10, sometime:30 };
+  // State
+  let active='overdue';
+  let state=load();
 
-  let active = 'overdue';
-  let state = loadState();
-
-  const listEl = document.getElementById('taskList');
-  const titleEl = document.getElementById('listTitle');
-  const countEl = document.getElementById('count');
-  const emptyEl = document.getElementById('empty');
+  // UI refs
+  const UL=document.getElementById('taskList');
+  const EMPTY=document.getElementById('empty');
+  const TITLE=document.getElementById('listTitle');
 
   function switchTab(key){
-    active = key;
-    ['home','overdue','urgent','semi','sometime'].forEach(k => {
-      const btn = document.getElementById('tab-'+k);
-      if(!btn) return;
-      if(k === key) btn.classList.add('active'); else btn.classList.remove('active');
+    active=key;
+    ['home','overdue','urgent','semi','sometime'].forEach(k=>{
+      const b=document.getElementById('tab-'+k); if(!b) return;
+      if(k===key) b.classList.add('active'); else b.classList.remove('active');
     });
-    renderList();
+    render();
   }
 
   function addTask(e){
     e.preventDefault();
-    const text = (document.getElementById('taskText').value || '').trim();
+    const text=(document.getElementById('taskText').value||'').trim();
     if(!text) return;
-    const category = document.getElementById('taskCat').value;
-    const position = document.getElementById('taskPos').value;
-    const now = new Date();
-    const due = addDays(now, DEADLINES[category]);
-    const same = state.filter(t => t.category === category);
-    const orders = same.map(t => t.order || 0);
-    const min = orders.length ? Math.min(...orders) : 0;
-    const max = orders.length ? Math.max(...orders) : 0;
-    const order = position === 'top' ? min - 1 : max + 1;
-    const newTask = { id:uuid(), text, category, createdAt:now.toISOString(), dueAt:due.toISOString(), order, completed:false };
-    state.push(newTask); saveState(state);
+    const cat=document.getElementById('taskCat').value;
+    const pos=document.getElementById('taskPos').value;
+    const now=new Date();
+    const due=addDays(now, DEAD[cat]);
+    const same=state.filter(t=>t.category===cat);
+    const orders=same.map(t=>t.order||0);
+    const min=orders.length?Math.min(...orders):0;
+    const max=orders.length?Math.max(...orders):0;
+    const order=pos==='top'?min-1:max+1;
+    const task={ id:uuid(), text, category:cat, createdAt:now.toISOString(), dueAt:due.toISOString(), order };
+    state.push(task); save(state);
     document.getElementById('taskText').value='';
-    switchTab(category);
+    switchTab(cat);
   }
 
-  function renderList(){
-    const now = todayEnd();
-    let items = [];
-    if(active === 'overdue'){
-      titleEl.textContent = 'Overdue';
-      items = state.filter(t => !t.completed && new Date(t.dueAt) < now);
-    } else if(active === 'urgent' || active === 'semi' || active === 'sometime'){
-      titleEl.textContent = active==='urgent' ? 'Urgent' : active==='semi' ? 'Semi-urgent' : 'Sometime';
-      items = state.filter(t => !t.completed && t.category === active && new Date(t.dueAt) >= now);
-      items.sort((a,b) => (a.order||0)-(b.order||0) || a.createdAt.localeCompare(b.createdAt));
-    } else {
-      titleEl.textContent = 'Overdue';
-      items = state.filter(t => !t.completed && new Date(t.dueAt) < now);
+  function render(){
+    const now=todayEnd();
+    let items=[];
+    if(active==='overdue'){
+      TITLE.textContent='Overdue';
+      items=state.filter(t=>new Date(t.dueAt)<now);
+    }else if(active==='urgent'||active==='semi'||active==='sometime'){
+      TITLE.textContent=active==='urgent'?'Urgent':active==='semi'?'Semi-urgent':'Sometime';
+      items=state.filter(t=>t.category===active && new Date(t.dueAt)>=now)
+                 .sort((a,b)=>(a.order||0)-(b.order||0) || a.createdAt.localeCompare(b.createdAt));
+    }else{
+      TITLE.textContent='Overdue';
+      items=state.filter(t=>new Date(t.dueAt)<now);
     }
 
-    const counts = {
-      overdue: state.filter(t => !t.completed && new Date(t.dueAt) < now).length,
-      urgent: state.filter(t => !t.completed && t.category==='urgent' && new Date(t.dueAt) >= now).length,
-      semi: state.filter(t => !t.completed && t.category==='semi' && new Date(t.dueAt) >= now).length,
-      sometime: state.filter(t => !t.completed && t.category==='sometime' && new Date(t.dueAt) >= now).length,
-    };
-    countEl.textContent = active==='overdue' ? 'Overdue: '+counts.overdue
-                        : active==='urgent' ? 'Urgent: '+counts.urgent
-                        : active==='semi'   ? 'Semi-urgent: '+counts.semi
-                        : 'Sometime: '+counts.sometime;
-
-    listEl.innerHTML='';
-    emptyEl.style.display = items.length ? 'none' : 'block';
-    items.forEach(t => {
-      const li = document.createElement('li'); li.className='task';
-
-      // Row: checkbox + text
-      const row = document.createElement('div'); row.className='row';
-      const cb = document.createElement('input'); cb.type='checkbox'; cb.checked=!!t.completed; cb.addEventListener('change', () => toggle(t.id));
-      const text = document.createElement('p'); text.textContent = t.text; text.className = t.completed ? 'strike' : '';
-      row.appendChild(cb); row.appendChild(text); li.appendChild(row);
-
-      // Meta info (keep)
-      const meta = document.createElement('div'); meta.className='meta';
-      const pill = document.createElement('span'); pill.className='pill ' + (t.category==='urgent'?'rose':t.category==='semi'?'amber':'emerald'); pill.textContent = CATEGORY_LABELS[t.category];
-      const added = document.createElement('span'); added.textContent = 'Added: ' + fmt(t.createdAt);
-      const due = document.createElement('span'); due.textContent = 'Due: ' + fmt(t.dueAt);
-      const left = document.createElement('span'); const dl = daysLeft(t.dueAt); left.textContent = dl<0?('Overdue by '+Math.abs(dl)+'d'):(dl+'d left'); if(dl<0) left.style.color='var(--rose)';
-      meta.appendChild(pill); meta.appendChild(added); meta.appendChild(due); meta.appendChild(left);
-      li.appendChild(meta);
-
-      // Actions (delete only)
-      const actions = document.createElement('div'); actions.className='actions';
-      const del = document.createElement('button'); del.className='btn'; del.textContent='✕'; del.addEventListener('click', () => removeTask(t.id));
-      actions.appendChild(del); li.appendChild(actions);
-
-      listEl.appendChild(li);
+    UL.innerHTML='';
+    EMPTY.style.display = items.length ? 'none' : 'block';
+    items.forEach(t=>{
+      const li=document.createElement('li'); li.className='task';
+      const p=document.createElement('p'); p.textContent=t.text;
+      li.appendChild(p);
+      UL.appendChild(li);
     });
   }
-
-  function toggle(id){ state = state.map(t => t.id===id? {...t, completed:!t.completed } : t); saveState(state); renderList(); }
-  function removeTask(id){ state = state.filter(t => t.id !== id); saveState(state); renderList(); }
 
   switchTab('overdue');
 </script>
