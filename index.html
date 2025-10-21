@@ -33,10 +33,20 @@
     .three{ grid-template-columns:1fr }
     @media(min-width:640px){ .three{ grid-template-columns:1fr 1fr 1fr } }
 
-    /* TASK LIST: text-only items, no flexboxes anywhere to avoid iOS quirks */
+    /* TASK LIST: text-only items to avoid iOS flex quirks */
     ul.tasks{ list-style:none; margin:0; padding:0; display:grid; gap:10px }
-    li.task{ background:#f8fafc; border:1px solid var(--line); border-radius:12px; padding:12px; }
+    li.task{ background:#f8fafc; border:1px solid var(--line); border-radius:12px; padding:12px; position:relative; padding-right:52px; }
     li.task p{ margin:0; white-space:normal; word-break:normal; overflow-wrap:break-word; }
+
+    /* Delete button that doesn't affect text wrapping */
+    .task-del{
+      position:absolute; top:8px; right:8px;
+      width:36px; height:36px;
+      border:1px solid var(--line); border-radius:8px;
+      background:#fff; cursor:pointer;
+      line-height:1;
+    }
+    @media(max-width:600px){ .task-del{ width:40px; height:40px; } }
 
     footer{ padding:10px; text-align:center; color:#6b7280; font-size:12px; }
   </style>
@@ -98,25 +108,20 @@
 </div>
 
 <script>
-  // Basic PWA
   if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{})); }
 
-  // Storage
-  const STORAGE_KEY='five_tab_todo_text_only_v13';
+  const STORAGE_KEY='five_tab_todo_text_only_v14';
   function save(arr){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }catch{} }
   function load(){ try{ const raw=localStorage.getItem(STORAGE_KEY); return raw? JSON.parse(raw): []; }catch{ return []; } }
   function uuid(){ return (crypto.randomUUID? crypto.randomUUID(): Date.now().toString(36)+Math.random().toString(36).slice(2,8)); }
 
-  // Dates
   const DEAD={ urgent:5, semi:10, sometime:30 };
   function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); x.setHours(23,59,59,999); return x; }
   function todayEnd(){ const x=new Date(); x.setHours(23,59,59,999); return x; }
 
-  // State
   let active='overdue';
   let state=load();
 
-  // UI refs
   const UL=document.getElementById('taskList');
   const EMPTY=document.getElementById('empty');
   const TITLE=document.getElementById('listTitle');
@@ -149,6 +154,12 @@
     switchTab(cat);
   }
 
+  function removeTask(id){
+    state = state.filter(t => t.id !== id);
+    save(state);
+    render();
+  }
+
   function render(){
     const now=todayEnd();
     let items=[];
@@ -168,8 +179,15 @@
     EMPTY.style.display = items.length ? 'none' : 'block';
     items.forEach(t=>{
       const li=document.createElement('li'); li.className='task';
+
       const p=document.createElement('p'); p.textContent=t.text;
       li.appendChild(p);
+
+      const del=document.createElement('button'); 
+      del.className='task-del'; del.textContent='✕'; del.setAttribute('aria-label','Delete task');
+      del.addEventListener('click', () => removeTask(t.id));
+      li.appendChild(del);
+
       UL.appendChild(li);
     });
   }
