@@ -64,6 +64,26 @@
   }
 
   .tabs { flex-wrap: wrap; }
+/* --- iPhone flex wrap fix: let the text column actually shrink & wrap --- */
+li.task { gap: 12px; }  /* a bit more breathing room */
+
+li.task > div:first-child {
+  flex: 1 1 auto;   /* grow and shrink */
+  min-width: 0;     /* CRUCIAL for Safari so text can wrap inside */
+}
+
+li.task .actions {
+  flex: 0 0 auto;   /* keep the buttons from stealing width */
+}
+
+li.task p {
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+  width: 100%;      /* avoid min-content width in iOS flexbox */
+  margin: 0;
+  line-height: 1.4;
+}
   
   </style>
 </head>
