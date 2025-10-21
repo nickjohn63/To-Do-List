@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>5‑Tab To‑Do</title>
+  <title>5-Tab To-Do</title>
   <meta name="theme-color" content="#0f172a">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -11,92 +11,69 @@
     :root{
       --bg:#f6f7fb; --card:#fff; --ink:#0f172a; --muted:#6b7280; --line:#e5e7eb; --accent:#111827;
       --rose:#b91c1c; --amber:#b45309; --emerald:#065f46;
+      --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom);
     }
+    html, body{ writing-mode: horizontal-tb; -webkit-writing-mode: horizontal-tb; }
     *{box-sizing:border-box}
-    html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1.4 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial;}
-    .app{max-width:1000px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
-    header{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);z-index:10}
-    .title{padding:12px 16px;font-weight:800;font-size:22px}
-    .tabs{display:flex;gap:8px;overflow:auto;padding:8px 8px 12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff}
-    .tab{flex:0 0 auto;border:1px solid var(--line);border-radius:999px;padding:10px 14px;background:#fff;font-weight:700}
+    html,body{
+      margin:0;height:100%;background:var(--bg);color:var(--ink);
+      font: clamp(15px, 1.9vw, 16px)/1.45 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial;
+      text-size-adjust:100%; -webkit-text-size-adjust:100%;
+    }
+    .app{max-width:1000px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding-bottom:var(--safe-bottom)}
+    header{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);z-index:10;padding-top:var(--safe-top)}
+    .title{padding:12px 16px;font-weight:800;font-size:clamp(18px,2.4vw,22px)}
+    .tabs{display:flex;gap:8px;overflow:auto;padding:8px 8px 12px;background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);flex-wrap:wrap}
+    .tab{flex:0 0 auto;border:1px solid var(--line);border-radius:999px;padding:10px 14px;background:#fff;font-weight:700;line-height:1;min-height:40px;white-space:nowrap}
     .tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-    main{padding:16px;display:flex;flex-direction:column;gap:16px}
+    main{padding:12px;display:flex;flex-direction:column;gap:12px}
     .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 2px 6px rgba(0,0,0,.03)}
-    .card h2{margin:0;padding:12px 16px;border-bottom:1px solid var(--line);font-size:18px}
-    .card .body{padding:12px 16px}
-    .grid{display:grid;gap:12px}
-    .three{grid-template-columns:1fr}
-    @media(min-width:640px){.three{grid-template-columns:1fr 1fr 1fr}}
+    .card h2{margin:0;padding:10px 12px;border-bottom:1px solid var(--line);font-size:clamp(16px,2.2vw,18px)}
+    .card .body{padding:10px 12px}
+    .bar{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 12px}
+    .hint{font-size:clamp(12px,2vw,13px);color:#6b7280;margin:6px 0 0}
     input,select,button{font:inherit}
-    input,select{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
-    button.primary{background:var(--accent);color:#fff;border:none;border-radius:12px;padding:12px;font-weight:800}
+    input,select{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;width:100%}
+    button.primary{background:var(--accent);color:#fff;border:none;border-radius:12px;padding:12px;font-weight:800;width:100%}
+    .btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px;font-size:clamp(14px,2.2vw,15px)}
+    .grid{display:grid;gap:10px}
+    .three{grid-template-columns:1fr}
+    @media (min-width:640px){.three{grid-template-columns:1fr 1fr 1fr}}
     ul.tasks{list-style:none;margin:0;padding:0;display:grid;gap:10px}
-    li.task{display:flex;gap:8px;justify-content:space-between;align-items:flex-start;background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:12px}
-    .meta{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:4px}
+    li.task{
+      display:flex;gap:12px;justify-content:space-between;align-items:flex-start;
+      background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:12px;
+    }
+    li.task p, .title, .tab, .hint, .pill, button, input, select, small, label{
+      white-space:normal; word-break:normal; overflow-wrap:break-word;
+    }
+    li.task p{margin:0;line-height:1.4;font-size:clamp(14px,2.3vw,16px);width:100%}
+    .meta{display:flex;gap:8px;flex-wrap:wrap;font-size:clamp(11px,2vw,12px);color:var(--muted);margin-top:4px}
     .pill{font-weight:800;text-transform:uppercase;letter-spacing:.04em}
     .rose{color:var(--rose)} .amber{color:var(--amber)} .emerald{color:var(--emerald)}
-    .actions{display:flex;gap:8px}
-    .btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 10px;font-size:14px}
-    .strike{text-decoration:line-through;color:#9ca3af}
-    footer{padding:8px 16px 24px;text-align:center;color:#6b7280;font-size:12px}
-    .bar{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 16px}
-    .hint{font-size:13px;color:#6b7280;margin:6px 0 0}
-    .banner{display:none;padding:10px 16px;background:#111827;color:#fff}
-...your existing CSS up here...
-
-  /* iOS vertical text + safe wrapping fix */
-  html, body {
-    writing-mode: horizontal-tb;
-    -webkit-writing-mode: horizontal-tb;
-  }
-
-  li.task p,
-  .title,
-  .tab,
-  .hint,
-  .pill,
-  button,
-  input,
-  select {
-    white-space: normal;
-    word-break: normal;
-    overflow-wrap: break-word;
-  }
-
-  .tabs { flex-wrap: wrap; }
-/* --- iPhone flex wrap fix: let the text column actually shrink & wrap --- */
-li.task { gap: 12px; }  /* a bit more breathing room */
-
-li.task > div:first-child {
-  flex: 1 1 auto;   /* grow and shrink */
-  min-width: 0;     /* CRUCIAL for Safari so text can wrap inside */
-}
-
-li.task .actions {
-  flex: 0 0 auto;   /* keep the buttons from stealing width */
-}
-
-li.task p {
-  white-space: normal;
-  word-break: normal;
-  overflow-wrap: break-word;
-  width: 100%;      /* avoid min-content width in iOS flexbox */
-  margin: 0;
-  line-height: 1.4;
-}
-  
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .strike{ text-decoration:line-through;color:#9ca3af }
+    footer{padding:8px 12px 20px;text-align:center;color:#6b7280;font-size:clamp(11px,1.8vw,12px)}
+    @media (orientation:portrait){
+      main{padding:10px}
+      .tabs{gap:6px}
+      .tab{padding:10px 12px}
+      .actions{justify-content:flex-end}
+    }
+    /* iPhone flex wrap fix */
+    li.task > div:first-child{ flex:1 1 auto; min-width:0; }
+    li.task .actions{ flex:0 0 auto; }
   </style>
 </head>
 <body>
 <div class="app">
   <header>
-    <div class="title">5‑Tab To‑Do</div>
-    <div id="persistBanner" class="banner">Storage is limited in this viewer. When deployed on GitHub Pages, tasks will persist normally.</div>
+    <div class="title">5-Tab To-Do</div>
     <nav class="tabs" aria-label="Tabs">
       <button class="tab" id="tab-home" onclick="switchTab('home')">Home</button>
       <button class="tab" id="tab-overdue" onclick="switchTab('overdue')">Overdue</button>
       <button class="tab" id="tab-urgent" onclick="switchTab('urgent')">Urgent</button>
-      <button class="tab" id="tab-semi" onclick="switchTab('semi')">Semi‑urgent</button>
+      <button class="tab" id="tab-semi" onclick="switchTab('semi')">Semi-urgent</button>
       <button class="tab" id="tab-sometime" onclick="switchTab('sometime')">Sometime</button>
     </nav>
   </header>
@@ -108,14 +85,14 @@ li.task p {
         <form class="grid" onsubmit="addTask(event)" autocomplete="off">
           <label class="grid">
             <span class="hint">Task</span>
-            <input id="taskText" placeholder="Add a task… (e.g., Call supplier)">
+            <input id="taskText" placeholder="Add a task... (e.g., Call supplier)">
           </label>
           <div class="grid three">
             <label class="grid">
               <span class="hint">Category</span>
               <select id="taskCat">
                 <option value="urgent">Urgent (5 days)</option>
-                <option value="semi">Semi‑urgent (10 days)</option>
+                <option value="semi">Semi-urgent (10 days)</option>
                 <option value="sometime">Sometime (30 days)</option>
               </select>
             </label>
@@ -128,7 +105,7 @@ li.task p {
             </label>
             <div><button class="primary" type="submit" style="width:100%">Add task</button></div>
           </div>
-          <p class="hint">Rules: Urgent = 5 days, Semi‑urgent = 10 days, Sometime = 30 days. When past due it goes to <strong>Overdue</strong>.</p>
+          <p class="hint">Rules: Urgent = 5 days, Semi-urgent = 10 days, Sometime = 30 days. Past due goes to Overdue.</p>
         </form>
       </div>
     </section>
@@ -144,12 +121,11 @@ li.task p {
       </div>
     </section>
 
-    <footer>Saved locally on this device. Tip: Share → Add to Home Screen.</footer>
+    <footer>Saved locally on this device. Tip: Share -> Add to Home Screen.</footer>
   </main>
 </div>
 
 <script>
-  // Register service worker for offline caching
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
   }
@@ -158,11 +134,11 @@ li.task p {
   let memoryFallback = null;
   function saveState(arr){
     try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
-    catch(e){ memoryFallback = JSON.stringify(arr); document.getElementById('persistBanner').style.display='block'; }
+    catch(e){ memoryFallback = JSON.stringify(arr); }
   }
   function loadState(){
     try{ const raw = localStorage.getItem(STORAGE_KEY); return raw? JSON.parse(raw): []; }
-    catch(e){ document.getElementById('persistBanner').style.display='block'; return memoryFallback? JSON.parse(memoryFallback): []; }
+    catch(e){ return memoryFallback? JSON.parse(memoryFallback): []; }
   }
   function uuid(){ return (crypto.randomUUID? crypto.randomUUID(): Date.now().toString(36)+Math.random().toString(36).slice(2,8)); }
 
@@ -171,7 +147,7 @@ li.task p {
   function fmt(x){ const d=new Date(x); return d.toLocaleDateString(undefined,{weekday:'short',year:'numeric',month:'short',day:'numeric'}); }
   function daysLeft(d){ const e=new Date(d).getTime(); const s=new Date(); s.setHours(0,0,0,0); return Math.ceil((e-s.getTime())/86400000); }
 
-  const CATEGORY_LABELS = { urgent:'Urgent (≤5 days)', semi:'Semi‑urgent (≤10 days)', sometime:'Sometime (≤30 days)' };
+  const CATEGORY_LABELS = { urgent:'Urgent (<=5 days)', semi:'Semi-urgent (<=10 days)', sometime:'Sometime (<=30 days)' };
   const DEADLINES = { urgent:5, semi:10, sometime:30 };
 
   let active = 'overdue';
@@ -227,7 +203,7 @@ li.task p {
       titleEl.textContent = 'Overdue';
       items = state.filter(t => !t.completed && new Date(t.dueAt) < now);
     } else if(active === 'urgent' || active === 'semi' || active === 'sometime'){
-      titleEl.textContent = active==='urgent' ? 'Urgent' : active==='semi' ? 'Semi‑urgent' : 'Sometime';
+      titleEl.textContent = active==='urgent' ? 'Urgent' : active==='semi' ? 'Semi-urgent' : 'Sometime';
       items = state.filter(t => !t.completed && t.category === active && new Date(t.dueAt) >= now);
       items.sort((a,b) => (a.order||0)-(b.order||0) || a.createdAt.localeCompare(b.createdAt));
     } else {
@@ -243,7 +219,7 @@ li.task p {
     };
     countEl.textContent = active==='overdue' ? 'Overdue: '+counts.overdue
                         : active==='urgent' ? 'Urgent: '+counts.urgent
-                        : active==='semi'   ? 'Semi‑urgent: '+counts.semi
+                        : active==='semi'   ? 'Semi-urgent: '+counts.semi
                         : 'Sometime: '+counts.sometime;
 
     listEl.innerHTML='';
@@ -268,7 +244,7 @@ li.task p {
       const up = mkBtn('↑', () => bump(t.id,'up'));
       const down = mkBtn('↓', () => bump(t.id,'down'));
       const move = document.createElement('select'); move.className='btn';
-      ['urgent','semi','sometime'].forEach(k => { const o=document.createElement('option'); o.value=k; o.textContent = (k==='semi'?'Semi‑urgent':k[0].toUpperCase()+k.slice(1)); move.appendChild(o); });
+      ['urgent','semi','sometime'].forEach(k => { const o=document.createElement('option'); o.value=k; o.textContent = (k==='semi'?'Semi-urgent':k[0].toUpperCase()+k.slice(1)); move.appendChild(o); });
       move.value = t.category; move.addEventListener('change', () => moveCat(t.id, move.value));
       const del = mkBtn('✕', () => removeTask(t.id));
       actions.appendChild(up); actions.appendChild(down); actions.appendChild(move); actions.appendChild(del);
