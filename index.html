@@ -63,6 +63,26 @@
     /* iPhone flex wrap fix */
     li.task > div:first-child{ flex:1 1 auto; min-width:0; }
     li.task .actions{ flex:0 0 auto; }
+/* --- iPhone XR text-wrap fix (inner flex row) --- */
+li.task > div:first-child > div {
+  /* this is the inner flex row that holds the checkbox + <p> text */
+  min-width: 0;        /* CRUCIAL: allow the row to shrink */
+  flex: 1 1 auto;
+}
+
+li.task > div:first-child > div input[type="checkbox"] {
+  flex: 0 0 auto;      /* checkbox keeps its size */
+}
+
+li.task > div:first-child > div p {
+  flex: 1 1 auto;      /* text column can grow/shrink */
+  min-width: 0;        /* allow wrapping inside */
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+  margin: 0;
+}
+
   </style>
 </head>
 <body>
