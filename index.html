@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>5-Tab To-Do</title>
+  <title>5-Tab To-Do + Quotes</title>
   <meta name="theme-color" content="#0f172a">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -33,22 +33,20 @@
     .three{ grid-template-columns:1fr }
     @media(min-width:640px){ .three{ grid-template-columns:1fr 1fr 1fr } }
 
-    /* TASK LIST: simple blocks (no flex), bulletproof wrapping */
+    /* TASK LIST: simple blocks, bulletproof wrapping */
     ul.tasks{ list-style:none; margin:0; padding:0; display:grid; gap:10px }
     li.task{ background:#f8fafc; border:1px solid var(--line); border-radius:12px; padding:12px; position:relative;
-             padding-right:108px; padding-bottom:46px; } /* room for two buttons + bottom chip */
+             padding-right:108px; padding-bottom:46px; }
     li.task p{ margin:0; white-space:normal; word-break:normal; overflow-wrap:break-word; }
 
-    /* Delete & Date buttons (absolute so they don't affect wrapping) */
     .task-date, .task-del{
       position:absolute; top:8px; width:36px; height:36px;
       border:1px solid var(--line); border-radius:8px;
       background:#fff; cursor:pointer; line-height:1;
     }
     .task-del{ right:8px; }
-    .task-date{ right:52px; } /* sits left of delete */
+    .task-date{ right:52px; }
 
-    /* Bottom-left date chip (toggleable) */
     .date-chip{
       position:absolute; left:12px; bottom:8px;
       font-size:12px; color:var(--muted);
@@ -57,7 +55,6 @@
       display:none;
     }
 
-    /* Larger touch targets on small phones */
     @media(max-width:600px){
       .task-date, .task-del{ width:40px; height:40px; }
       li.task{ padding-right:116px; padding-bottom:50px; }
@@ -69,13 +66,14 @@
 <body>
 <div class="app">
   <header>
-    <div class="title">5-Tab To-Do</div>
+    <div class="title">To-Do + Quotes</div>
     <nav class="tabs" aria-label="Tabs">
       <button class="tab" id="tab-home" onclick="switchTab('home')">Home</button>
       <button class="tab" id="tab-overdue" onclick="switchTab('overdue')">Overdue</button>
       <button class="tab" id="tab-urgent" onclick="switchTab('urgent')">Urgent</button>
       <button class="tab" id="tab-semi" onclick="switchTab('semi')">Semi-urgent</button>
       <button class="tab" id="tab-sometime" onclick="switchTab('sometime')">Sometime</button>
+      <button class="tab" id="tab-quotes" onclick="switchTab('quotes')">Quotes</button>
     </nav>
   </header>
 
@@ -86,7 +84,7 @@
         <form class="grid" onsubmit="addTask(event)" autocomplete="off">
           <label class="grid">
             <span>Task</span>
-            <input id="taskText" placeholder="Add a task... (e.g., Call supplier)">
+            <input id="taskText" placeholder="Add a task or quote...">
           </label>
           <div class="grid three">
             <label class="grid">
@@ -95,6 +93,7 @@
                 <option value="urgent">Urgent (5 days)</option>
                 <option value="semi">Semi-urgent (10 days)</option>
                 <option value="sometime">Sometime (30 days)</option>
+                <option value="quotes">Quotes (no deadline)</option>
               </select>
             </label>
             <label class="grid">
@@ -104,7 +103,7 @@
                 <option value="bottom">End of list</option>
               </select>
             </label>
-            <div><button class="primary" type="submit">Add task</button></div>
+            <div><button class="primary" type="submit">Add</button></div>
           </div>
         </form>
       </div>
@@ -125,12 +124,12 @@
 <script>
   if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{})); }
 
-  const STORAGE_KEY='five_tab_todo_text_date_v15';
+  const STORAGE_KEY='five_tab_todo_quotes_v16';
   function save(arr){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }catch{} }
   function load(){ try{ const raw=localStorage.getItem(STORAGE_KEY); return raw? JSON.parse(raw): []; }catch{ return []; } }
   function uuid(){ return (crypto.randomUUID? crypto.randomUUID(): Date.now().toString(36)+Math.random().toString(36).slice(2,8)); }
 
-  const DEAD={ urgent:5, semi:10, sometime:30 };
+  const DEAD={ urgent:5, semi:10, sometime:30 }; // quotes has no deadline
   function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); x.setHours(23,59,59,999); return x; }
   function todayEnd(){ const x=new Date(); x.setHours(23,59,59,999); return x; }
 
@@ -143,7 +142,7 @@
 
   function switchTab(key){
     active=key;
-    ['home','overdue','urgent','semi','sometime'].forEach(k=>{
+    ['home','overdue','urgent','semi','sometime','quotes'].forEach(k=>{
       const b=document.getElementById('tab-'+k); if(!b) return;
       if(k===key) b.classList.add('active'); else b.classList.remove('active');
     });
@@ -157,13 +156,20 @@
     const cat=document.getElementById('taskCat').value;
     const pos=document.getElementById('taskPos').value;
     const now=new Date();
-    const due=addDays(now, DEAD[cat]);
+
+    // Quotes: no due date
+    let dueAt = null;
+    if(cat!=='quotes'){
+      dueAt = addDays(now, DEAD[cat]).toISOString();
+    }
+
     const same=state.filter(t=>t.category===cat);
     const orders=same.map(t=>t.order||0);
     const min=orders.length?Math.min(...orders):0;
     const max=orders.length?Math.max(...orders):0;
     const order=pos==='top'?min-1:max+1;
-    const task={ id:uuid(), text, category:cat, createdAt:now.toISOString(), dueAt:due.toISOString(), order, showDate:false };
+
+    const task={ id:uuid(), text, category:cat, createdAt:now.toISOString(), dueAt, order, showDate:false };
     state.push(task); save(state);
     document.getElementById('taskText').value='';
     switchTab(cat);
@@ -180,14 +186,21 @@
     let items=[];
     if(active==='overdue'){
       TITLE.textContent='Overdue';
-      items=state.filter(t=>new Date(t.dueAt)<now);
-    }else if(active==='urgent'||active==='semi'||active==='sometime'){
-      TITLE.textContent=active==='urgent'?'Urgent':active==='semi'?'Semi-urgent':'Sometime';
-      items=state.filter(t=>t.category===active && new Date(t.dueAt)>=now)
-                 .sort((a,b)=>(a.order||0)-(b.order||0) || a.createdAt.localeCompare(b.createdAt));
+      // Overdue only for items with a real due date
+      items=state.filter(t=>t.dueAt && new Date(t.dueAt)<now);
+    }else if(active==='urgent' || active==='semi' || active==='sometime'){
+      TITLE.textContent = active==='urgent' ? 'Urgent' : active==='semi' ? 'Semi-urgent' : 'Sometime';
+      items = state
+        .filter(t => t.category===active && t.dueAt && new Date(t.dueAt) >= now)
+        .sort((a,b)=>(a.order||0)-(b.order||0) || a.createdAt.localeCompare(b.createdAt));
+    }else if(active==='quotes'){
+      TITLE.textContent='Quotes';
+      items = state
+        .filter(t => t.category==='quotes')
+        .sort((a,b)=>(a.order||0)-(b.order||0) || a.createdAt.localeCompare(b.createdAt));
     }else{
       TITLE.textContent='Overdue';
-      items=state.filter(t=>new Date(t.dueAt)<now);
+      items=state.filter(t=>t.dueAt && new Date(t.dueAt)<now);
     }
 
     UL.innerHTML='';
@@ -195,18 +208,18 @@
     items.forEach(t=>{
       const li=document.createElement('li'); li.className='task';
 
-      // Text (wraps naturally)
+      // Text
       const p=document.createElement('p'); p.textContent=t.text;
       li.appendChild(p);
 
-      // Bottom date chip (hidden unless toggled)
+      // Chip: Added date (toggle)
       const chip=document.createElement('span'); chip.className='date-chip';
       const created=new Date(t.createdAt);
       chip.textContent='Added: '+created.toLocaleDateString(undefined,{weekday:'short',year:'numeric',month:'short',day:'numeric'});
       chip.style.display = t.showDate ? 'inline-flex' : 'none';
       li.appendChild(chip);
 
-      // Date toggle button
+      // Date toggle
       const dateBtn=document.createElement('button');
       dateBtn.className='task-date'; dateBtn.textContent='🗓'; dateBtn.setAttribute('aria-label','Toggle added date');
       dateBtn.addEventListener('click', ()=>{
@@ -216,7 +229,7 @@
       });
       li.appendChild(dateBtn);
 
-      // Delete button
+      // Delete
       const del=document.createElement('button'); 
       del.className='task-del'; del.textContent='✕'; del.setAttribute('aria-label','Delete task');
       del.addEventListener('click', ()=>removeTask(t.id));
