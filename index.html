@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>5‑Tab To‑Do</title>
+  <meta name="theme-color" content="#0f172a">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <style>
+    :root{
+      --bg:#f6f7fb; --card:#fff; --ink:#0f172a; --muted:#6b7280; --line:#e5e7eb; --accent:#111827;
+      --rose:#b91c1c; --amber:#b45309; --emerald:#065f46;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1.4 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial;}
+    .app{max-width:1000px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
+    header{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);z-index:10}
+    .title{padding:12px 16px;font-weight:800;font-size:22px}
+    .tabs{display:flex;gap:8px;overflow:auto;padding:8px 8px 12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff}
+    .tab{flex:0 0 auto;border:1px solid var(--line);border-radius:999px;padding:10px 14px;background:#fff;font-weight:700}
+    .tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+    main{padding:16px;display:flex;flex-direction:column;gap:16px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 2px 6px rgba(0,0,0,.03)}
+    .card h2{margin:0;padding:12px 16px;border-bottom:1px solid var(--line);font-size:18px}
+    .card .body{padding:12px 16px}
+    .grid{display:grid;gap:12px}
+    .three{grid-template-columns:1fr}
+    @media(min-width:640px){.three{grid-template-columns:1fr 1fr 1fr}}
+    input,select,button{font:inherit}
+    input,select{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
+    button.primary{background:var(--accent);color:#fff;border:none;border-radius:12px;padding:12px;font-weight:800}
+    ul.tasks{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+    li.task{display:flex;gap:8px;justify-content:space-between;align-items:flex-start;background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:12px}
+    .meta{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:4px}
+    .pill{font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+    .rose{color:var(--rose)} .amber{color:var(--amber)} .emerald{color:var(--emerald)}
+    .actions{display:flex;gap:8px}
+    .btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 10px;font-size:14px}
+    .strike{text-decoration:line-through;color:#9ca3af}
+    footer{padding:8px 16px 24px;text-align:center;color:#6b7280;font-size:12px}
+    .bar{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 16px}
+    .hint{font-size:13px;color:#6b7280;margin:6px 0 0}
+    .banner{display:none;padding:10px 16px;background:#111827;color:#fff}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="title">5‑Tab To‑Do</div>
+    <div id="persistBanner" class="banner">Storage is limited in this viewer. When deployed on GitHub Pages, tasks will persist normally.</div>
+    <nav class="tabs" aria-label="Tabs">
+      <button class="tab" id="tab-home" onclick="switchTab('home')">Home</button>
+      <button class="tab" id="tab-overdue" onclick="switchTab('overdue')">Overdue</button>
+      <button class="tab" id="tab-urgent" onclick="switchTab('urgent')">Urgent</button>
+      <button class="tab" id="tab-semi" onclick="switchTab('semi')">Semi‑urgent</button>
+      <button class="tab" id="tab-sometime" onclick="switchTab('sometime')">Sometime</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Home</h2>
+      <div class="body">
+        <form class="grid" onsubmit="addTask(event)" autocomplete="off">
+          <label class="grid">
+            <span class="hint">Task</span>
+            <input id="taskText" placeholder="Add a task… (e.g., Call supplier)">
+          </label>
+          <div class="grid three">
+            <label class="grid">
+              <span class="hint">Category</span>
+              <select id="taskCat">
+                <option value="urgent">Urgent (5 days)</option>
+                <option value="semi">Semi‑urgent (10 days)</option>
+                <option value="sometime">Sometime (30 days)</option>
+              </select>
+            </label>
+            <label class="grid">
+              <span class="hint">Insert position</span>
+              <select id="taskPos">
+                <option value="top">Top of list</option>
+                <option value="bottom">End of list</option>
+              </select>
+            </label>
+            <div><button class="primary" type="submit" style="width:100%">Add task</button></div>
+          </div>
+          <p class="hint">Rules: Urgent = 5 days, Semi‑urgent = 10 days, Sometime = 30 days. When past due it goes to <strong>Overdue</strong>.</p>
+        </form>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="bar">
+        <h2 id="listTitle" style="margin:0;font-size:18px">Overdue</h2>
+        <small id="count" class="hint" aria-live="polite"></small>
+      </div>
+      <div class="body">
+        <ul class="tasks" id="taskList"></ul>
+        <p id="empty" class="hint" style="display:none">Nothing here yet.</p>
+      </div>
+    </section>
+
+    <footer>Saved locally on this device. Tip: Share → Add to Home Screen.</footer>
+  </main>
+</div>
+
+<script>
+  // Register service worker for offline caching
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
+  }
+
+  const STORAGE_KEY = 'five_tab_todo_v1';
+  let memoryFallback = null;
+  function saveState(arr){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
+    catch(e){ memoryFallback = JSON.stringify(arr); document.getElementById('persistBanner').style.display='block'; }
+  }
+  function loadState(){
+    try{ const raw = localStorage.getItem(STORAGE_KEY); return raw? JSON.parse(raw): []; }
+    catch(e){ document.getElementById('persistBanner').style.display='block'; return memoryFallback? JSON.parse(memoryFallback): []; }
+  }
+  function uuid(){ return (crypto.randomUUID? crypto.randomUUID(): Date.now().toString(36)+Math.random().toString(36).slice(2,8)); }
+
+  function addDays(date, days){ const d=new Date(date); d.setDate(d.getDate()+days); d.setHours(23,59,59,999); return d; }
+  function todayEnd(){ const d=new Date(); d.setHours(23,59,59,999); return d; }
+  function fmt(x){ const d=new Date(x); return d.toLocaleDateString(undefined,{weekday:'short',year:'numeric',month:'short',day:'numeric'}); }
+  function daysLeft(d){ const e=new Date(d).getTime(); const s=new Date(); s.setHours(0,0,0,0); return Math.ceil((e-s.getTime())/86400000); }
+
+  const CATEGORY_LABELS = { urgent:'Urgent (≤5 days)', semi:'Semi‑urgent (≤10 days)', sometime:'Sometime (≤30 days)' };
+  const DEADLINES = { urgent:5, semi:10, sometime:30 };
+
+  let active = 'overdue';
+  let state = loadState();
+  if(state.length === 0){
+    const now = new Date();
+    state = [
+      { id:uuid(), text:'(Demo) Call supplier about balcony drawings', category:'urgent', createdAt:now.toISOString(), dueAt:addDays(now,5).toISOString(), order:0, completed:false },
+      { id:uuid(), text:'(Demo) Order fixings for Job TRX-20031', category:'semi', createdAt:now.toISOString(), dueAt:addDays(now,10).toISOString(), order:1, completed:false },
+      { id:uuid(), text:'(Demo) Price powder-coating upgrade', category:'sometime', createdAt:now.toISOString(), dueAt:addDays(now,30).toISOString(), order:2, completed:false }
+    ];
+    saveState(state);
+  }
+
+  const listEl = document.getElementById('taskList');
+  const titleEl = document.getElementById('listTitle');
+  const countEl = document.getElementById('count');
+  const emptyEl = document.getElementById('empty');
+
+  function switchTab(key){
+    active = key;
+    ['home','overdue','urgent','semi','sometime'].forEach(k => {
+      const btn = document.getElementById('tab-'+k);
+      if(!btn) return;
+      if(k === key) btn.classList.add('active'); else btn.classList.remove('active');
+    });
+    renderList();
+  }
+
+  function addTask(e){
+    e.preventDefault();
+    const text = (document.getElementById('taskText').value || '').trim();
+    if(!text) return;
+    const category = document.getElementById('taskCat').value;
+    const position = document.getElementById('taskPos').value;
+    const now = new Date();
+    const due = addDays(now, DEADLINES[category]);
+    const same = state.filter(t => t.category === category);
+    const orders = same.map(t => t.order || 0);
+    const min = orders.length ? Math.min(...orders) : 0;
+    const max = orders.length ? Math.max(...orders) : 0;
+    const order = position === 'top' ? min - 1 : max + 1;
+    const newTask = { id:uuid(), text, category, createdAt:now.toISOString(), dueAt:due.toISOString(), order, completed:false };
+    state.push(newTask); saveState(state);
+    document.getElementById('taskText').value='';
+    switchTab(category);
+  }
+
+  function renderList(){
+    const now = todayEnd();
+    let items = [];
+    if(active === 'overdue'){
+      titleEl.textContent = 'Overdue';
+      items = state.filter(t => !t.completed && new Date(t.dueAt) < now);
+    } else if(active === 'urgent' || active === 'semi' || active === 'sometime'){
+      titleEl.textContent = active==='urgent' ? 'Urgent' : active==='semi' ? 'Semi‑urgent' : 'Sometime';
+      items = state.filter(t => !t.completed && t.category === active && new Date(t.dueAt) >= now);
+      items.sort((a,b) => (a.order||0)-(b.order||0) || a.createdAt.localeCompare(b.createdAt));
+    } else {
+      titleEl.textContent = 'Overdue';
+      items = state.filter(t => !t.completed && new Date(t.dueAt) < now);
+    }
+
+    const counts = {
+      overdue: state.filter(t => !t.completed && new Date(t.dueAt) < now).length,
+      urgent: state.filter(t => !t.completed && t.category==='urgent' && new Date(t.dueAt) >= now).length,
+      semi: state.filter(t => !t.completed && t.category==='semi' && new Date(t.dueAt) >= now).length,
+      sometime: state.filter(t => !t.completed && t.category==='sometime' && new Date(t.dueAt) >= now).length,
+    };
+    countEl.textContent = active==='overdue' ? 'Overdue: '+counts.overdue
+                        : active==='urgent' ? 'Urgent: '+counts.urgent
+                        : active==='semi'   ? 'Semi‑urgent: '+counts.semi
+                        : 'Sometime: '+counts.sometime;
+
+    listEl.innerHTML='';
+    emptyEl.style.display = items.length ? 'none' : 'block';
+    items.forEach(t => {
+      const li = document.createElement('li'); li.className='task';
+      const left = document.createElement('div'); left.style.flex='1';
+      const head = document.createElement('div'); head.style.display='flex'; head.style.alignItems='center'; head.style.gap='8px';
+      const cb = document.createElement('input'); cb.type='checkbox'; cb.checked=!!t.completed; cb.addEventListener('change', () => toggle(t.id));
+      const text = document.createElement('p'); text.textContent = t.text; text.className = t.completed ? 'strike' : '';
+      head.appendChild(cb); head.appendChild(text); left.appendChild(head);
+
+      const meta = document.createElement('div'); meta.className='meta';
+      const pill = document.createElement('span'); pill.className='pill ' + (t.category==='urgent'?'rose':t.category==='semi'?'amber':'emerald'); pill.textContent = CATEGORY_LABELS[t.category];
+      const add = document.createElement('span'); add.textContent='Added: '+fmt(t.createdAt);
+      const due = document.createElement('span'); due.textContent='Due: '+fmt(t.dueAt);
+      const leftDays = document.createElement('span'); const dl = daysLeft(t.dueAt); leftDays.textContent = dl<0?('Overdue by '+Math.abs(dl)+'d'):(dl+'d left'); if(dl<0) leftDays.style.color='var(--rose)';
+      meta.appendChild(pill); meta.appendChild(add); meta.appendChild(due); meta.appendChild(leftDays);
+      left.appendChild(meta);
+
+      const actions = document.createElement('div'); actions.className='actions';
+      const up = mkBtn('↑', () => bump(t.id,'up'));
+      const down = mkBtn('↓', () => bump(t.id,'down'));
+      const move = document.createElement('select'); move.className='btn';
+      ['urgent','semi','sometime'].forEach(k => { const o=document.createElement('option'); o.value=k; o.textContent = (k==='semi'?'Semi‑urgent':k[0].toUpperCase()+k.slice(1)); move.appendChild(o); });
+      move.value = t.category; move.addEventListener('change', () => moveCat(t.id, move.value));
+      const del = mkBtn('✕', () => removeTask(t.id));
+      actions.appendChild(up); actions.appendChild(down); actions.appendChild(move); actions.appendChild(del);
+
+      li.appendChild(left); li.appendChild(actions);
+      listEl.appendChild(li);
+    });
+  }
+
+  function mkBtn(label, fn){ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=label; b.addEventListener('click', fn); return b; }
+  function toggle(id){ state = state.map(t => t.id===id? {...t, completed:!t.completed } : t); saveState(state); renderList(); }
+  function removeTask(id){ state = state.filter(t => t.id !== id); saveState(state); renderList(); }
+  function bump(id, dir){
+    const now = todayEnd();
+    const me = state.find(t => t.id===id); if(!me) return;
+    const same = state.filter(t => !t.completed && t.category===me.category && new Date(t.dueAt) >= now)
+                     .sort((a,b)=> (a.order||0)-(b.order||0) || a.createdAt.localeCompare(b.createdAt));
+    const pos = same.findIndex(x => x.id===id);
+    const swap = same[pos + (dir==='up'?-1:1)];
+    if(!swap) return;
+    const a = state.findIndex(x => x.id===me.id);
+    const b = state.findIndex(x => x.id===swap.id);
+    const tmp = state[a].order; state[a].order = state[b].order; state[b].order = tmp;
+    saveState(state); renderList();
+  }
+  function moveCat(id, newCat){
+    state = state.map(t => {
+      if(t.id !== id) return t;
+      const due = addDays(new Date(), DEADLINES[newCat]);
+      const same = state.filter(x => x.category === newCat);
+      const max = same.length ? Math.max(...same.map(x => x.order||0)) : 0;
+      return { ...t, category:newCat, dueAt:due.toISOString(), order:max+1 };
+    });
+    saveState(state); switchTab(newCat);
+  }
+
+  switchTab('overdue');
+</script>
+</body>
+</html>
