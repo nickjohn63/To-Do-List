@@ -8,7 +8,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <style>
-    :root{ --bg:#f6f7fb; --card:#fff; --ink:#0f172a; --line:#e5e7eb; --accent:#111827; }
+    :root{ --bg:#f6f7fb; --card:#fff; --ink:#0f172a; --muted:#6b7280; --line:#e5e7eb; --accent:#111827; }
     html,body{ margin:0; height:100%; background:var(--bg); color:var(--ink);
       font: 16px/1.45 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial; -webkit-text-size-adjust:100%; }
     *{ box-sizing:border-box }
@@ -33,20 +33,35 @@
     .three{ grid-template-columns:1fr }
     @media(min-width:640px){ .three{ grid-template-columns:1fr 1fr 1fr } }
 
-    /* TASK LIST: text-only items to avoid iOS flex quirks */
+    /* TASK LIST: simple blocks (no flex), bulletproof wrapping */
     ul.tasks{ list-style:none; margin:0; padding:0; display:grid; gap:10px }
-    li.task{ background:#f8fafc; border:1px solid var(--line); border-radius:12px; padding:12px; position:relative; padding-right:52px; }
+    li.task{ background:#f8fafc; border:1px solid var(--line); border-radius:12px; padding:12px; position:relative;
+             padding-right:108px; padding-bottom:46px; } /* room for two buttons + bottom chip */
     li.task p{ margin:0; white-space:normal; word-break:normal; overflow-wrap:break-word; }
 
-    /* Delete button that doesn't affect text wrapping */
-    .task-del{
-      position:absolute; top:8px; right:8px;
-      width:36px; height:36px;
+    /* Delete & Date buttons (absolute so they don't affect wrapping) */
+    .task-date, .task-del{
+      position:absolute; top:8px; width:36px; height:36px;
       border:1px solid var(--line); border-radius:8px;
-      background:#fff; cursor:pointer;
-      line-height:1;
+      background:#fff; cursor:pointer; line-height:1;
     }
-    @media(max-width:600px){ .task-del{ width:40px; height:40px; } }
+    .task-del{ right:8px; }
+    .task-date{ right:52px; } /* sits left of delete */
+
+    /* Bottom-left date chip (toggleable) */
+    .date-chip{
+      position:absolute; left:12px; bottom:8px;
+      font-size:12px; color:var(--muted);
+      background:#fff; border:1px solid var(--line);
+      border-radius:999px; padding:4px 8px;
+      display:none;
+    }
+
+    /* Larger touch targets on small phones */
+    @media(max-width:600px){
+      .task-date, .task-del{ width:40px; height:40px; }
+      li.task{ padding-right:116px; padding-bottom:50px; }
+    }
 
     footer{ padding:10px; text-align:center; color:#6b7280; font-size:12px; }
   </style>
@@ -110,7 +125,7 @@
 <script>
   if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{})); }
 
-  const STORAGE_KEY='five_tab_todo_text_only_v14';
+  const STORAGE_KEY='five_tab_todo_text_date_v15';
   function save(arr){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }catch{} }
   function load(){ try{ const raw=localStorage.getItem(STORAGE_KEY); return raw? JSON.parse(raw): []; }catch{ return []; } }
   function uuid(){ return (crypto.randomUUID? crypto.randomUUID(): Date.now().toString(36)+Math.random().toString(36).slice(2,8)); }
@@ -148,7 +163,7 @@
     const min=orders.length?Math.min(...orders):0;
     const max=orders.length?Math.max(...orders):0;
     const order=pos==='top'?min-1:max+1;
-    const task={ id:uuid(), text, category:cat, createdAt:now.toISOString(), dueAt:due.toISOString(), order };
+    const task={ id:uuid(), text, category:cat, createdAt:now.toISOString(), dueAt:due.toISOString(), order, showDate:false };
     state.push(task); save(state);
     document.getElementById('taskText').value='';
     switchTab(cat);
@@ -180,12 +195,31 @@
     items.forEach(t=>{
       const li=document.createElement('li'); li.className='task';
 
+      // Text (wraps naturally)
       const p=document.createElement('p'); p.textContent=t.text;
       li.appendChild(p);
 
+      // Bottom date chip (hidden unless toggled)
+      const chip=document.createElement('span'); chip.className='date-chip';
+      const created=new Date(t.createdAt);
+      chip.textContent='Added: '+created.toLocaleDateString(undefined,{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+      chip.style.display = t.showDate ? 'inline-flex' : 'none';
+      li.appendChild(chip);
+
+      // Date toggle button
+      const dateBtn=document.createElement('button');
+      dateBtn.className='task-date'; dateBtn.textContent='🗓'; dateBtn.setAttribute('aria-label','Toggle added date');
+      dateBtn.addEventListener('click', ()=>{
+        t.showDate = !t.showDate;
+        chip.style.display = t.showDate ? 'inline-flex' : 'none';
+        save(state);
+      });
+      li.appendChild(dateBtn);
+
+      // Delete button
       const del=document.createElement('button'); 
       del.className='task-del'; del.textContent='✕'; del.setAttribute('aria-label','Delete task');
-      del.addEventListener('click', () => removeTask(t.id));
+      del.addEventListener('click', ()=>removeTask(t.id));
       li.appendChild(del);
 
       UL.appendChild(li);
